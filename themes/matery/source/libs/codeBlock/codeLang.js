@@ -3,18 +3,15 @@
 $(function () {
   var $highlight_lang = $('<div class="code_lang" title="代码语言"></div>');
 
-  $('pre').before($highlight_lang);
-  $('pre').each(function () {
-    var code_language = $(this).attr('class');
+  $('.code-area').prepend($highlight_lang);
+  $('figure.highlight').each(function () {
+    var code_language = $(this).attr('class').replace('highlight', '').trim();
 
     if (!code_language) {
       return true;
     };
-    var lang_name = code_language.replace("line-numbers", "").trim().replace("language-", "").trim();
+    var lang_name = code_language.trim();
 
-    // 首字母大写
-    // lang_name = lang_name.slice(0, 1).toUpperCase() + lang_name.slice(1);
-    
     $(this).siblings(".code_lang").text(lang_name);
   });
 });

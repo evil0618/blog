@@ -1,1 +1,43 @@
 /* Here is your custom css styles. */
+
+/* 手机端代码块适配 */
+@media only screen and (max-width: 600px) {
+    .code-area {
+        margin: 0 -10px;
+    }
+
+    .code-area figure.highlight {
+        margin: 0;
+    }
+
+    .code-area figure.highlight pre {
+        padding: 2rem 0.5rem 0.5rem 1.5rem !important;
+        font-size: 0.8rem;
+    }
+
+    .code-area .code_lang {
+        font-size: 0.7rem;
+        right: 10px;
+    }
+
+    .code-area .code_copy {
+        right: 5px;
+        font-size: 0.8rem;
+    }
+
+    /* 文章内容手机端优化 */
+    #articleContent {
+        padding: 0 5px;
+    }
+
+    #articleContent img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* prev-next 手机端单列 */
+    .prev-next .article-row .article {
+        width: 100% !important;
+        margin-bottom: 10px;
+    }
+}

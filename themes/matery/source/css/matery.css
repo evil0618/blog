@@ -551,12 +551,10 @@ header .go-back i {
 }
 
 .bg-cover:after {
-    -webkit-animation: rainbow 60s infinite;
-    animation: rainbow 60s infinite;
+    background: rgba(0, 0, 0, 0.3);
 }
 
-.bg-cover:before,
-.bg-cover:after {
+.bg-cover:before {
     position: absolute;
     z-index: 1;
     width: 100%;
@@ -565,6 +563,7 @@ header .go-back i {
     left: 0;
     top: 0;
     content: "";
+    background: rgba(0, 0, 0, 0.1);
 }
 
 .bg-cover .container {
