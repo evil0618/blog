@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Hello, Shadcn, My Blog">
+    <meta name="description" content="欢迎来到全新重构的博客。
+本次重构将原 matery 主题改造为严格契合 Shadcn UI 美学的极简风格，主要改动：
+
+设计系统：Light&amp;#x2F;Dark 双 HSL 语义 token（Zinc 色阶）+ Tailwind + I">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>Hello, Shadcn | My Blog</title>
+    <link rel="icon" type="image/png" href="/blog/favicon.png">
+
+    <!-- Anti-FOUC: apply dark class before paint -->
+    <script>
+      (function(){try{var t=localStorage.getItem('theme');var m=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(!t&&m)){document.documentElement.classList.add('dark');}}catch(e){}})();
+    </script>
+
+    <!-- Tailwind CDN (play mode) + shadcn token config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              background: 'hsl(var(--background))',
+              foreground: 'hsl(var(--foreground))',
+              muted: { DEFAULT: 'hsl(var(--muted))', foreground: 'hsl(var(--muted-foreground))' },
+              border: 'hsl(var(--border))',
+              input: 'hsl(var(--input))',
+              primary: { DEFAULT: 'hsl(var(--primary))', foreground: 'hsl(var(--primary-foreground))' },
+              accent: { DEFAULT: 'hsl(var(--accent))', foreground: 'hsl(var(--accent-foreground))' },
+              ring: 'hsl(var(--ring))'
+            },
+            fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+            borderRadius: { lg: 'var(--radius)', md: 'calc(var(--radius) - 2px)', sm: 'calc(var(--radius) - 4px)' }
+          }
+        }
+      };
+    </script>
+
+    <!-- Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/blog/libs/awesome/css/all.min.css">
+<link rel="stylesheet" href="/blog/css/shadcn-theme.css">
+<link rel="stylesheet" href="/blog/css/matery.css">
+<link rel="stylesheet" href="/blog/css/post.css">
+<link rel="stylesheet" href="/blog/css/dark.css">
+
+
+    <script src="/blog/js/app.js" defer></script>
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+    <header class="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
+  <div class="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+    <!-- Left: logo + title -->
+    <a href="/blog/" class="flex items-center gap-2 font-semibold text-foreground hover:opacity-80 transition-opacity">
+      <img src="/blog/medias/logo.png" alt="My Blog" class="h-6 w-6 rounded">
+      <span>My Blog</span>
+    </a>
+    <!-- Center/right: desktop nav -->
+    <nav class="hidden md:flex items-center gap-1">
+  
+    
+    
+      
+      <a href="/blog/" class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+        <i class="fas fa-home" aria-hidden="true" style="font-size:.75rem;"></i>
+        <span>首页</span>
+      </a>
+    
+  
+    
+    
+      
+      <a href="/blog/tags" class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+        <i class="fas fa-tags" aria-hidden="true" style="font-size:.75rem;"></i>
+        <span>标签</span>
+      </a>
+    
+  
+    
+    
+      
+      <a href="/blog/categories" class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+        <i class="fas fa-bookmark" aria-hidden="true" style="font-size:.75rem;"></i>
+        <span>分类</span>
+      </a>
+    
+  
+    
+    
+      
+      <a href="/blog/about" class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+        <i class="fas fa-user-circle" aria-hidden="true" style="font-size:.75rem;"></i>
+        <span>关于</span>
+      </a>
+    
+  
+</nav>
+
+    <!-- Right cluster: github + theme toggle + mobile hamburger -->
+    <div class="flex items-center gap-1">
+      
+      <a href="https://github.com/evil0618" target="_blank" rel="noopener" aria-label="GitHub" class="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <i class="fab fa-github" aria-hidden="true"></i>
+      </a>
+      
+      <button id="theme-toggle" type="button" aria-label="切换主题" class="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <i class="fas fa-moon" aria-hidden="true"></i>
+      </button>
+      <button id="mobile-menu-toggle" type="button" aria-label="打开菜单" class="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden">
+        <i class="fas fa-bars" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+</header>
+<div id="mobile-overlay" class="hidden fixed inset-0 z-40 bg-black/50 md:hidden"></div>
+<aside id="mobile-drawer" class="hidden fixed right-0 top-0 z-50 h-full w-72 border-l border-border bg-background p-4 overscroll-contain md:hidden">
+  <nav class="flex flex-col gap-1">
+    
+      
+      
+      <a href="/blog/" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+        <i class="fas fa-home" aria-hidden="true" style="font-size:.85rem;width:1.25rem;"></i>
+        <span>首页</span>
+      </a>
+      
+    
+      
+      
+      <a href="/blog/tags" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+        <i class="fas fa-tags" aria-hidden="true" style="font-size:.85rem;width:1.25rem;"></i>
+        <span>标签</span>
+      </a>
+      
+    
+      
+      
+      <a href="/blog/categories" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+        <i class="fas fa-bookmark" aria-hidden="true" style="font-size:.85rem;width:1.25rem;"></i>
+        <span>分类</span>
+      </a>
+      
+    
+      
+      
+      <a href="/blog/about" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+        <i class="fas fa-user-circle" aria-hidden="true" style="font-size:.85rem;width:1.25rem;"></i>
+        <span>关于</span>
+      </a>
+      
+    
+    <div class="my-2 h-px bg-border"></div>
+    
+    <a href="https://github.com/evil0618" target="_blank" rel="noopener" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+      <i class="fab fa-github" aria-hidden="true" style="width:1.25rem;"></i><span>GitHub</span>
+    </a>
+    
+  </nav>
+</aside>
+
+
+    
+
+<main>
+    <!-- 文章内容详情 -->
+<div class="mx-auto max-w-3xl px-4 py-12">
+  <header class="mb-8 border-b border-border pb-6">
+    <h1 class="text-3xl font-semibold tracking-tight text-foreground">Hello, Shadcn</h1>
+    <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+      
+      <span class="inline-flex items-center gap-1"><i class="far fa-calendar" aria-hidden="true"></i>2026-06-30</span>
+      
+      
+      
+      <span class="inline-flex items-center gap-1"><i class="fas fa-bookmark" aria-hidden="true"></i>
+        <a href="/blog/categories/%E5%85%AC%E5%91%8A/" class="hover:text-foreground transition-colors">公告</a>
+      </span>
+      
+    </div>
+  </header>
+
+  <div class="post-content">
+    <p>欢迎来到全新重构的博客。</p>
+<p>本次重构将原 matery 主题改造为严格契合 Shadcn UI 美学的极简风格，主要改动：</p>
+<ul>
+<li><strong>设计系统</strong>：Light&#x2F;Dark 双 HSL 语义 token（Zinc 色阶）+ Tailwind + Inter 字体</li>
+<li><strong>首页</strong>：居中单列 <code>max-w-3xl</code> 轻边框卡片列表，去除全屏 banner 与重阴影</li>
+<li><strong>文章详情页</strong>：阅读区限宽，终端风格代码块（Mac 红绿灯 + 复制按钮），引用块左侧细边框，上下篇导航</li>
+<li><strong>导航</strong>：sticky 吸顶 + backdrop-blur，移动端右侧抽屉</li>
+<li><strong>部署</strong>：完美适配 GitHub Pages <code>/blog/</code> 子路径，所有资源经 <code>url_for()</code> 处理</li>
+</ul>
+<blockquote>
+<p>支持暗色模式，点击右上角月亮图标切换。</p>
+</blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">greet</span>(<span class="params">name</span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Hello, &#x27;</span> + name);</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">greet</span>(<span class="string">&#x27;Shadcn&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>开始写作吧 —— 在 <code>source/_posts/</code> 下新建 Markdown 文件即可。</p>
+
+  </div>
+
+  
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/blog/about" rel="external nofollow noreferrer">evil0618</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://evil0618.github.io/blog/blog/2026/06/30/hello-shadcn/">https://evil0618.github.io/blog/blog/2026/06/30/hello-shadcn/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/blog/about" target="_blank">evil0618</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      (function () {
+        var shown = false;
+        document.addEventListener("copy", function () {
+          if (shown) return;
+          shown = true;
+          var t = document.createElement('div');
+          t.textContent = '复制成功，请遵循本文的转载规则';
+          t.setAttribute('role', 'status');
+          t.style.cssText = 'position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%);background:hsl(var(--primary));color:hsl(var(--primary-foreground));padding:.6rem 1rem;border-radius:calc(var(--radius) - 2px);font-size:.85rem;z-index:60;box-shadow:0 4px 12px rgba(0,0,0,.15);max-width:90vw;';
+          document.body.appendChild(t);
+          setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); shown = false; }, 3000);
+        });
+      })();
+    </script>
+
+
+
+  
+  <div class="mt-8 flex flex-wrap gap-2">
+    
+    <a href="/blog/tags/Shadcn/" class="inline-flex items-center rounded-md border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">#Shadcn</a>
+    
+    <a href="/blog/tags/UI/" class="inline-flex items-center rounded-md border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">#UI</a>
+    
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  <nav class="mt-12 grid gap-4 sm:grid-cols-2" aria-label="文章导航">
+  
+  <span class="border border-border rounded-lg p-5 opacity-50">
+    <span class="inline-flex items-center gap-1 text-xs text-muted-foreground"><i class="fas fa-chevron-left" aria-hidden="true"></i> 上一篇</span>
+    <span class="mt-1 block text-muted-foreground">已是最早</span>
+  </span>
+  
+  
+  <span class="border border-border rounded-lg p-5 text-right opacity-50">
+    <span class="inline-flex items-center gap-1 text-xs text-muted-foreground">下一篇 <i class="fas fa-chevron-right" aria-hidden="true"></i></span>
+    <span class="mt-1 block text-muted-foreground">已是最新</span>
+  </span>
+  
+</nav>
+
+</div>
+
+<!-- 代码块增强：终端风格 -->
+<style>
+.post-content figure.highlight,
+.post-content pre {
+  background: hsl(var(--terminal-bg));
+  border: 1px solid hsl(var(--terminal-border));
+  border-radius: var(--radius);
+  margin: 1.5rem 0;
+  overflow: hidden;
+  position: relative;
+}
+.post-content figure.highlight pre,
+.post-content pre { margin: 0; background: transparent; border: 0; }
+.post-content figure.highlight table { width: 100%; border-collapse: collapse; }
+.post-content figure.highlight td { border: 0; padding: 0; vertical-align: top; }
+.post-content figure.highlight .gutter {
+  background: rgba(255,255,255,0.03);
+  padding: 0.9rem 0.75rem;
+  color: #71717a;
+  text-align: right;
+  user-select: none;
+  white-space: nowrap;
+}
+.post-content figure.highlight .gutter pre { color: #71717a; }
+.post-content figure.highlight .code { padding: 0.9rem 0.9rem 0.9rem 0; width: 100%; }
+.post-content figure.highlight .code pre { padding-left: 0.9rem; }
+.post-content pre code,
+.post-content figure.highlight code {
+  color: #fafafa;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.post-content pre { padding: 0.9rem; }
+.code-block-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  border-bottom: 1px solid hsl(var(--terminal-border));
+}
+.traffic-light { width: 0.75rem; height: 0.75rem; border-radius: 9999px; display: inline-block; }
+.traffic-light.red { background: #ff5f56; }
+.traffic-light.yellow { background: #ffbd2e; }
+.traffic-light.green { background: #27c93f; }
+.code-lang-label {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: #a1a1aa;
+  font-family: ui-monospace, monospace;
+  text-transform: lowercase;
+}
+.code-copy-btn {
+  margin-left: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.375rem;
+  color: #a1a1aa;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.code-copy-btn:hover { color: #fafafa; background: rgba(255,255,255,0.08); }
+</style>
+
+<script>
+(function () {
+  function announce(msg) {
+    var live = document.getElementById('code-live-region');
+    if (!live) {
+      live = document.createElement('div');
+      live.id = 'code-live-region';
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('class', 'sr-only');
+      document.body.appendChild(live);
+    }
+    live.textContent = msg;
+  }
+
+  function getLang(block) {
+    if (block.tagName === 'FIGURE') {
+      var m = block.className.match(/highlight\s+(\S+)/);
+      if (m && m[1] && m[1] !== 'plain') return m[1];
+    } else {
+      var code = block.querySelector('code');
+      if (code) {
+        var mm = code.className.match(/language-(\S+)/);
+        if (mm) return mm[1];
+      }
+    }
+    return '';
+  }
+
+  function getCodeText(block) {
+    if (block.tagName === 'FIGURE') {
+      var c = block.querySelector('td.code code') || block.querySelector('code');
+      return c ? c.innerText : '';
+    }
+    var cc = block.querySelector('code');
+    return cc ? cc.innerText : block.innerText;
+  }
+
+  function enhance(block) {
+    if (block.dataset.enhanced) return;
+    block.dataset.enhanced = '1';
+    var header = document.createElement('div');
+    header.className = 'code-block-header';
+    header.innerHTML =
+      '<span class="traffic-light red" aria-hidden="true"></span>' +
+      '<span class="traffic-light yellow" aria-hidden="true"></span>' +
+      '<span class="traffic-light green" aria-hidden="true"></span>' +
+      '<span class="code-lang-label"></span>';
+    header.querySelector('.code-lang-label').textContent = getLang(block);
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'code-copy-btn';
+    btn.setAttribute('aria-label', '复制代码');
+    btn.innerHTML = '<i class="fas fa-copy" aria-hidden="true"></i>';
+    btn.addEventListener('click', function () {
+      var text = getCodeText(block);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, done);
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+        done();
+      }
+      function done() {
+        announce('代码已复制');
+        btn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i>';
+        setTimeout(function () { btn.innerHTML = '<i class="fas fa-copy" aria-hidden="true"></i>'; }, 1500);
+      }
+    });
+    header.appendChild(btn);
+
+    if (block.tagName === 'FIGURE') {
+      block.insertBefore(header, block.firstChild);
+    } else {
+      // wrap header + pre: insert header before the pre in its parent.
+      var parent = block.parentNode;
+      if (parent) parent.insertBefore(header, block);
+    }
+  }
+
+  function init() {
+    var figures = document.querySelectorAll('.post-content figure.highlight');
+    figures.forEach(enhance);
+    var pres = document.querySelectorAll('.post-content pre');
+    pres.forEach(function (p) {
+      if (p.closest('figure.highlight')) return; // inner pre of figure, skip
+      enhance(p);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+
+</main>
+
+
+
+    <footer class="border-t border-border bg-background">
+  <div class="mx-auto max-w-5xl px-4 py-8 text-center text-sm text-muted-foreground">
+    <p>
+      Copyright &copy;
+      2026
+      <a href="/blog/about" class="hover:text-foreground transition-colors">evil0618</a>
+      &middot; Powered by <a href="https://hexo.io/" target="_blank" rel="noopener" class="hover:text-foreground transition-colors">Hexo</a>
+    </p>
+    
+  </div>
+</footer>
+
+    <!-- 回到顶部按钮 -->
+<button id="back-top" type="button" aria-label="返回顶部" class="hidden fixed bottom-6 right-6 z-40 inline-flex size-10 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-sm hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+  <i class="fas fa-arrow-up" aria-hidden="true"></i>
+</button>
+
+    <!-- Baidu Analytics -->
+
+</body>
+</html>

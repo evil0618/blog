@@ -1,0 +1,7 @@
+/* Dark mode: token switching handled by .dark in shadcn-theme.css.
+   This file keeps smooth transitions and neutralizes legacy overrides. */
+html, body { transition: background-color 0.2s ease, color 0.2s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  html, body { transition: none; }
+}

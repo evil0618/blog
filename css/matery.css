@@ -1,0 +1,80 @@
+/* matery.css — Shadcn UI refactor.
+   Global chrome + Tailwind-inline components live elsewhere (header/footer/cards/etc).
+   This file holds minimal resets and backward-compat shims for un-refactored pages
+   (tags/categories/about/archive/tag/category) that still use Materialize-era classes.
+   All colors come from shadcn tokens defined in shadcn-theme.css. */
+
+html, body { height: 100%; }
+
+/* Layout primitives (Materialize legacy) */
+.container { width: 100%; max-width: 48rem; margin: 0 auto; padding: 0 1rem; }
+.row { display: flex; flex-wrap: wrap; gap: 1rem; }
+.col, .s12, .m6, .m4, .l4, .l3 { box-sizing: border-box; }
+.s12 { flex: 0 0 100%; max-width: 100%; }
+.m6 { flex: 0 0 calc(50% - 0.5rem); max-width: calc(50% - 0.5rem); }
+.m4, .l4 { flex: 0 0 calc(33.333% - 0.667rem); max-width: calc(33.333% - 0.667rem); }
+.l3 { flex: 0 0 calc(25% - 0.75rem); max-width: calc(25% - 0.75rem); }
+
+/* Card / surface */
+.card {
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+.card-content { padding: 0; }
+.card-title { font-size: 1.25rem; font-weight: 600; color: hsl(var(--foreground)); }
+
+/* Chips / tags */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border));
+}
+
+/* Buttons */
+.btn, .btn-floating {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: 0;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+.btn-floating {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border-radius: 9999px;
+}
+
+/* Dividers */
+.divider, hr {
+  height: 1px;
+  background: hsl(var(--border));
+  border: 0;
+  margin: 1rem 0;
+}
+
+/* Legacy color/alignment helpers */
+.bg-color { background: hsl(var(--background)); }
+.text-color { color: hsl(var(--foreground)); }
+.white-color { color: hsl(var(--foreground)); }
+.center-align { text-align: center; }
+.right-align { text-align: right; }
+.responsive-img { max-width: 100%; height: auto; }
+.hide-on-small-only { }
+@media (max-width: 600px) {
+  .hide-on-small-only { display: none !important; }
+}

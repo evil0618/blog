@@ -1,0 +1,78 @@
+/* Post content prose typography (Shadcn-style, token-driven).
+   Code block styling is owned by codeblock.ejs — not handled here. */
+.post-content { color: hsl(var(--foreground)); font-size: 1rem; line-height: 1.75; }
+.post-content > *:first-child { margin-top: 0; }
+
+.post-content h1, .post-content h2, .post-content h3,
+.post-content h4, .post-content h5, .post-content h6 {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 2rem 0 1rem;
+  scroll-margin-top: 5rem;
+}
+.post-content h1 { font-size: 1.875rem; }
+.post-content h2 { font-size: 1.5rem; padding-bottom: 0.3rem; border-bottom: 1px solid hsl(var(--border)); }
+.post-content h3 { font-size: 1.25rem; }
+.post-content h4 { font-size: 1.125rem; }
+
+.post-content p { margin: 1rem 0; }
+
+.post-content a {
+  color: hsl(var(--foreground));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: hsl(var(--muted-foreground));
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+.post-content a:hover { text-decoration-color: hsl(var(--foreground)); }
+
+.post-content ul, .post-content ol { margin: 1rem 0; padding-left: 1.5rem; }
+.post-content ul { list-style: disc; }
+.post-content ol { list-style: decimal; }
+.post-content li { margin: 0.4rem 0; }
+
+.post-content blockquote {
+  margin: 1.5rem 0;
+  padding: 0.5rem 0 0.5rem 1rem;
+  border-left: 2px solid hsl(var(--border));
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+  background: hsl(var(--muted) / 0.4);
+  border-radius: 0 calc(var(--radius) - 2px) calc(var(--radius) - 2px) 0;
+}
+.post-content blockquote p { margin: 0.5rem 0; }
+
+.post-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  margin: 1.5rem 0;
+  display: block;
+}
+
+.post-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.post-content th, .post-content td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.6rem 0.9rem;
+  text-align: left;
+}
+.post-content th { background: hsl(var(--muted)); font-weight: 600; color: hsl(var(--foreground)); }
+.post-content td { color: hsl(var(--foreground)); }
+
+.post-content hr {
+  height: 1px;
+  background: hsl(var(--border));
+  border: 0;
+  margin: 2rem 0;
+}
+
+.post-content strong { color: hsl(var(--foreground)); font-weight: 600; }
+.post-content del { color: hsl(var(--muted-foreground)); }
