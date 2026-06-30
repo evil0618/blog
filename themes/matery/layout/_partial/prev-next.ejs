@@ -1,95 +1,24 @@
-<%
-var hashCode = function (str) {
-    if (!str && str.length === 0) {
-        return 0;
-    }
-
-    var hash = 0;
-    for (var i = 0, len = str.length; i < len; i++) {
-        hash = ((hash << 5) - hash) + str.charCodeAt(i);
-        hash |= 0;
-    }
-    return hash;
-};
-
-var featureimg = '/medias/featureimages/0.jpg';
-var featureImages = theme.featureImages;
-%>
-
-<article id="prenext-posts" class="prev-next articles">
-    <div class="row article-row">
-        <% if (page.prev) { %>
-        <div class="article col s12 m6" data-aos="fade-up">
-            <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;<%= __('prev') %></div>
-            <div class="card">
-                <a href="<%- url_for(page.prev.path) %>">
-                    <div class="card-image">
-                        <% if (page.prev.img) { %>
-                        <img src="<%- url_for(page.prev.img) %>" class="responsive-img" alt="<%= page.prev.title %>">
-                        <% } else { %>
-                        <%
-                            var len = featureImages.length;
-                            var num = Math.abs(hashCode(page.prev.title) % len);
-                            featureimg = featureImages[num];
-                        %>
-                        <img src="<%- theme.jsDelivr.url %><%- url_for(featureimg) %>" class="responsive-img" alt="<%= page.prev.title %>">
-                        <% } %>
-                        <span class="card-title"><%= page.prev.title %></span>
-                    </div>
-                </a>
-                <div class="card-content article-content">
-                    <div class="summary block-with-text">
-                        <% if (page.prev.summary && page.prev.summary.length > 0) { %>
-                            <%- page.prev.summary %>
-                        <% } else { %>
-                            <%- strip_html(page.prev.excerpt).substring(0, 120) %>
-                        <% } %>
-                    </div>
-                    <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i><%= date(page.prev.date, config.date_format) %>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <% } %>
-        <% if (page.next) { %>
-        <div class="article col s12 m6" data-aos="fade-up">
-            <div class="article-badge right-badge text-color">
-                <%= __('next') %>&nbsp;<i class="fas fa-chevron-right"></i>
-            </div>
-            <div class="card">
-                <a href="<%- url_for(page.next.path) %>">
-                    <div class="card-image">
-                        <% if (page.next.img) { %>
-                        <img src="<%- url_for(page.next.img) %>" class="responsive-img" alt="<%= page.next.title %>">
-                        <% } else { %>
-                        <%
-                            featureimg = featureImages[Math.abs(hashCode(page.next.title) % featureImages.length)];
-                        %>
-                        <img src="<%- theme.jsDelivr.url %><%- url_for(featureimg) %>" class="responsive-img" alt="<%= page.next.title %>">
-                        <% } %>
-                        <span class="card-title"><%= page.next.title %></span>
-                    </div>
-                </a>
-                <div class="card-content article-content">
-                    <div class="summary block-with-text">
-                        <% if (page.next.summary && page.next.summary.length > 0) { %>
-                            <%- page.next.summary %>
-                        <% } else { %>
-                            <%- strip_html(page.next.excerpt).substring(0, 120) %>
-                        <% } %>
-                    </div>
-                    <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i><%= date(page.next.date, config.date_format) %>
-                            </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <% } %>
-    </div>
-</article>
+<nav class="mt-12 grid gap-4 sm:grid-cols-2" aria-label="文章导航">
+  <% if (page.prev) { %>
+  <a href="<%- url_for(page.prev.path) %>" class="group border border-border rounded-lg p-5 transition-shadow hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+    <span class="inline-flex items-center gap-1 text-xs text-muted-foreground"><i class="fas fa-chevron-left" aria-hidden="true"></i> 上一篇</span>
+    <span class="mt-1 block font-medium text-foreground group-hover:underline"><%= page.prev.title %></span>
+  </a>
+  <% } else { %>
+  <span class="border border-border rounded-lg p-5 opacity-50">
+    <span class="inline-flex items-center gap-1 text-xs text-muted-foreground"><i class="fas fa-chevron-left" aria-hidden="true"></i> 上一篇</span>
+    <span class="mt-1 block text-muted-foreground">已是最早</span>
+  </span>
+  <% } %>
+  <% if (page.next) { %>
+  <a href="<%- url_for(page.next.path) %>" class="group border border-border rounded-lg p-5 text-right transition-shadow hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+    <span class="inline-flex items-center gap-1 text-xs text-muted-foreground">下一篇 <i class="fas fa-chevron-right" aria-hidden="true"></i></span>
+    <span class="mt-1 block font-medium text-foreground group-hover:underline"><%= page.next.title %></span>
+  </a>
+  <% } else { %>
+  <span class="border border-border rounded-lg p-5 text-right opacity-50">
+    <span class="inline-flex items-center gap-1 text-xs text-muted-foreground">下一篇 <i class="fas fa-chevron-right" aria-hidden="true"></i></span>
+    <span class="mt-1 block text-muted-foreground">已是最新</span>
+  </span>
+  <% } %>
+</nav>

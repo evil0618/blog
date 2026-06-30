@@ -1,68 +1,20 @@
-<%
-var configRoot = config.root
-configRoot = (configRoot === null || configRoot === undefined || configRoot === '/') ? '' : configRoot;
-%>
-<div id="mobile-nav" class="side-nav sidenav">
-
-    <div class="mobile-head bg-color">
-        <% if (theme.logo !== undefined && theme.logo.length > 0) { %>
-        <img src="<%- theme.jsDelivr.url %><%- url_for(theme.logo) %>" class="logo-img circle responsive-img">
-        <% } %>
-        <div class="logo-name"><%= config.title %></div>
-        <div class="logo-desc">
-            <% if (config.description && config.description.length > 0) { %>
-            <%= config.description %>
-            <% } else { %>
-            Never really desperate, only the lost of the soul.
-            <% } %>
-        </div>
-    </div>
-
-    <ul class="menu-list mobile-menu-list">
-        <% Object.keys(theme.menu).forEach(function(key) { %>
-        <li class="m-nav-item">
-	  <% if(!theme.menu[key].children) { %>
-		<a href="<%- url_for(theme.menu[key].url) %>" class="waves-effect waves-light">
-			<% if (theme.menu[key].icon && theme.menu[key].icon.length > 0) { %>
-			    <i class="fa-fw <%- theme.menu[key].icon %>"></i>
-			<% } else { %>
-				<i class="fas fa-fw fa-link"></i>
-			<% } %>
-			<%- __(key) %>
-		</a>
-          <% } else { %>
-		<a href="javascript:;">
-			<% if (theme.menu[key].icon && theme.menu[key].icon.length > 0) { %>
-				<i class="fa-fw <%- theme.menu[key].icon %>"></i>
-			<% } else { %>
-				<i class="fas fa-fw fa-link"></i>
-			<% } %>
-			<%- __(key) %>
-			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
-		</a>
-            <ul <%if(theme.navMenu&&theme.navMenu.bgColor){%> style="background: <%-theme.navMenu.bgColor%>;"<%}%> >
-              <% for(let childrenLink of theme.menu[key].children){ %>
-                <li>
-
-                  <a href="<%- url_for(childrenLink.url)%> " style="margin-left:<% if (theme.navMenu && theme.navMenu.mleft) {%>50px<%}else{%>75px<%}%>">
-				  <% if (childrenLink.icon && childrenLink.icon.length > 0) { %>
-				   <i class="fa <%- childrenLink.icon %>" style="position: absolute;left:<%if(theme.navMenu&&theme.navMenu.mleft){%>28px<%}else{%>50px<%}%>" ></i>
-			      <% } %>
-		          <span><%- childrenLink.name %></span>
-                  </a>
-                </li>
-              <% } %>
-            </ul>
-          <% } %>
-        </li>
-        <% }); %>
-        <% if (theme.githubLink && theme.githubLink.enable) { %>
-        <li><div class="divider"></div></li>
-        <li>
-            <a href="<%- theme.githubLink.url %>" class="waves-effect waves-light" target="_blank">
-                <i class="fab fa-github-square fa-fw"></i><%- theme.githubLink.title %>
-            </a>
-        </li>
-        <% } %>
-    </ul>
-</div>
+<div id="mobile-overlay" class="hidden fixed inset-0 z-40 bg-black/50 md:hidden"></div>
+<aside id="mobile-drawer" class="hidden fixed right-0 top-0 z-50 h-full w-72 border-l border-border bg-background p-4 overscroll-contain md:hidden">
+  <nav class="flex flex-col gap-1">
+    <% Object.keys(theme.menu).forEach(function(key) { %>
+      <% var item = theme.menu[key]; %>
+      <% if (!item.children) { %>
+      <a href="<%- url_for(item.url) %>" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+        <% if (item.icon) { %><i class="<%- item.icon %>" aria-hidden="true" style="font-size:.85rem;width:1.25rem;"></i><% } %>
+        <span><%- __(key) %></span>
+      </a>
+      <% } %>
+    <% }); %>
+    <div class="my-2 h-px bg-border"></div>
+    <% if (theme.socialLink && theme.socialLink.github) { %>
+    <a href="<%- theme.socialLink.github %>" target="_blank" rel="noopener" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+      <i class="fab fa-github" aria-hidden="true" style="width:1.25rem;"></i><span>GitHub</span>
+    </a>
+    <% } %>
+  </nav>
+</aside>

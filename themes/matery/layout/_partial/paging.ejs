@@ -1,31 +1,31 @@
-<div class="container paging">
-    <div class="row">
-        <div class="col s6 m4 l4">
-            <% if (page.prev) { %>
-            <a href="<%- url_for(page.prev_link) %>"
-               class="left btn-floating btn-large waves-effect waves-light bg-color">
-                <i class="fas fa-angle-left"></i>
-            </a>
-            <% } else { %>
-            <a class="left btn-floating btn-large disabled">
-                <i class="fas fa-angle-left"></i>
-            </a>
-            <% } %>
-        </div>
-        <div class="page-info col m4 l4 hide-on-small-only">
-            <div class="center-align b-text-gray"><%- page.current %> / <%- page.total %></div>
-        </div>
-        <div class="col s6 m4 l4">
-            <% if (page.next) { %>
-            <a href="<%- url_for(page.next_link) %>"
-               class="right btn-floating btn-large waves-effect waves-light bg-color">
-                <i class="fas fa-angle-right"></i>
-            </a>
-            <% } else { %>
-            <a class="right btn-floating btn-large disabled">
-                <i class="fas fa-angle-right"></i>
-            </a>
-            <% } %>
-        </div>
-    </div>
-</div>
+<nav class="flex items-center justify-center gap-2" aria-label="分页">
+  <% if (page.prev) { %>
+  <a href="<%- url_for(page.prev_link) %>" aria-label="上一页" class="inline-flex h-9 items-center justify-center rounded-md border border-border px-3 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+    <i class="fas fa-angle-left" aria-hidden="true"></i>
+  </a>
+  <% } else { %>
+  <span class="inline-flex h-9 items-center justify-center rounded-md border border-border px-3 text-sm text-muted-foreground opacity-50 pointer-events-none">
+    <i class="fas fa-angle-left" aria-hidden="true"></i>
+  </span>
+  <% } %>
+
+  <% for (var i = 1; i <= page.total; i++) { %>
+    <% if (i === page.current) { %>
+    <span aria-current="page" class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border border-primary bg-primary px-3 text-sm font-medium text-primary-foreground"><%= i %></span>
+    <% } else if (i === 1) { %>
+    <a href="<%- url_for('/') %>" class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border border-border px-3 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><%= i %></a>
+    <% } else { %>
+    <a href="<%- url_for('/page/' + i + '/') %>" class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border border-border px-3 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><%= i %></a>
+    <% } %>
+  <% } %>
+
+  <% if (page.next) { %>
+  <a href="<%- url_for(page.next_link) %>" aria-label="下一页" class="inline-flex h-9 items-center justify-center rounded-md border border-border px-3 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+    <i class="fas fa-angle-right" aria-hidden="true"></i>
+  </a>
+  <% } else { %>
+  <span class="inline-flex h-9 items-center justify-center rounded-md border border-border px-3 text-sm text-muted-foreground opacity-50 pointer-events-none">
+    <i class="fas fa-angle-right" aria-hidden="true"></i>
+  </span>
+  <% } %>
+</nav>

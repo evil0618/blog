@@ -1,53 +1,17 @@
-<%
-    var configRoot = config.root
-    configRoot = (configRoot === null || configRoot === undefined || configRoot === '/') ? '' : configRoot;
-%>
-
-<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
-<ul class="right nav-menu">
+<nav class="hidden md:flex items-center gap-1">
   <% Object.keys(theme.menu).forEach(function(key) { %>
-  <li class="hide-on-med-and-down nav-item">
-    <% if(!theme.menu[key].children) { %>
-    <a href="<%- url_for(theme.menu[key].url) %>" class="waves-effect waves-light">
-      <% if (theme.menu[key].icon && theme.menu[key].icon.length > 0) { %>
-      <i class="<%- theme.menu[key].icon %>" style="zoom: 0.6;"></i>
-      <% } %>
-      <span><%- __(key) %></span>
-    </a>
-    <% } else { %>
-    <a href="<%- theme.menu[key].url %>" class="waves-effect waves-light">
-
-      <% if (theme.menu[key].icon && theme.menu[key].icon.length > 0) { %>
-      <i class="<%- theme.menu[key].icon %>" style="zoom: 0.6;"></i>
-      <% } %>
-      <span><%- __(key) %></span>
-      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
-    </a>
-    <ul class="sub-nav menus_item_child ">
-      <% for(let childrenLink of theme.menu[key].children){ %>
-      <li>
-        <a href="<%- url_for(childrenLink.url)%>">
-          <% if (childrenLink.icon && childrenLink.icon.length > 0) { %>
-          <i class="<%- childrenLink.icon %>" style="margin-top: -20px; zoom: 0.6;"></i>
-          <% } %>
-          <span><%- childrenLink.name %></span>
-        </a>
-      </li>
-      <% } %>
-    </ul>
+    <% var item = theme.menu[key]; %>
+    <% if (!item.children) { %>
+      <% var active = false;
+         if (item.url === '/' ) active = is_home();
+         else if (item.url.indexOf('/tags') === 0) active = is_tag();
+         else if (item.url.indexOf('/categories') === 0) active = is_category();
+         else if (item.url.indexOf('/about') === 0) active = (page.title === 'about' || page.canonical_path && page.canonical_path.indexOf('/about') === 0);
+      %>
+      <a href="<%- url_for(item.url) %>" class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium <%= active ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent hover:text-foreground' %> transition-colors">
+        <% if (item.icon) { %><i class="<%- item.icon %>" aria-hidden="true" style="font-size:.75rem;"></i><% } %>
+        <span><%- __(key) %></span>
+      </a>
     <% } %>
-  </li>
   <% }); %>
-  <li>
-    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
-      <i id="searchIcon" class="fas fa-search" title="<%= __('search') %>" style="zoom: 0.85;"></i>
-    </a>
-  </li>
-  <li>
-    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
-      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
-    </a>
-  </li>
-</ul>
-
-<%- partial('_partial/mobile-nav') %>
+</nav>

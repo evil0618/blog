@@ -1,20 +1,26 @@
-<header class="navbar-fixed">
-    <nav id="headNav" class="bg-color nav-transparent">
-        <div id="navContainer" class="nav-wrapper container">
-            <div class="brand-logo">
-                <a href="<%- url_for() %>" class="waves-effect waves-light">
-                    <% if (theme.logo !== undefined && theme.logo.length > 0) { %>
-                    <img src="<%- theme.jsDelivr.url %><%- url_for(theme.logo) %>" class="logo-img" alt="LOGO">
-                    <% } %>
-                    <span class="logo-span"><%= config.title %></span>
-                </a>
-            </div>
-            <%- partial('_partial/navigation') %>
-        </div>
-
-        <% if (theme.githubLink && theme.githubLink.enable) { %>
-            <%- partial('_partial/github-link') %>
-        <% } %>
-    </nav>
-
+<header class="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
+  <div class="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+    <!-- Left: logo + title -->
+    <a href="<%- url_for('/') %>" class="flex items-center gap-2 font-semibold text-foreground hover:opacity-80 transition-opacity">
+      <% if (theme.logo && theme.logo.length) { %><img src="<%- url_for(theme.logo) %>" alt="<%= config.title %>" class="h-6 w-6 rounded"><% } %>
+      <span><%= config.title %></span>
+    </a>
+    <!-- Center/right: desktop nav -->
+    <%- partial('_partial/navigation') %>
+    <!-- Right cluster: github + theme toggle + mobile hamburger -->
+    <div class="flex items-center gap-1">
+      <% if (theme.socialLink && theme.socialLink.github) { %>
+      <a href="<%- theme.socialLink.github %>" target="_blank" rel="noopener" aria-label="GitHub" class="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <i class="fab fa-github" aria-hidden="true"></i>
+      </a>
+      <% } %>
+      <button id="theme-toggle" type="button" aria-label="切换主题" class="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <i class="fas fa-moon" aria-hidden="true"></i>
+      </button>
+      <button id="mobile-menu-toggle" type="button" aria-label="打开菜单" class="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden">
+        <i class="fas fa-bars" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
 </header>
+<%- partial('_partial/mobile-nav') %>

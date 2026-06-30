@@ -70,7 +70,7 @@ dream:
 # Whether to display the musics.
 # 是否在首页显示音乐.
 music:
-  enable: true
+  enable: false
   title: #非吸底模式有效
     enable: true
     show: 听听音乐
@@ -217,7 +217,7 @@ postInfo:
 # Whether to activate the 'love' effect of clicking on the page.
 # 是否激活点击页面的'爱心'效果，默认激活.
 clicklove:
-  enable: true
+  enable: false
 
 # | 文件名             | 说明                   |
 # | :----------------- | :--------------------- |
@@ -424,7 +424,7 @@ verifyPassword:
 # busuanzi(http://busuanzi.ibruce.info/) website statistics
 # 不蒜子(http://busuanzi.ibruce.info/) 网站统计
 busuanziStatistics:
-  enable: true
+  enable: false
   totalTraffic: true # 总访问量
   totalNumberOfvisitors: true # 总人次
 
@@ -629,7 +629,7 @@ navMenu:
 
 # 网页预加载.
 instantpage:
-  enable: true
+  enable: false
 
 # banner 是否每日切换.
 # 若为 false, 则 banner 默认为 /medias/banner/0.jpg
@@ -659,8 +659,7 @@ icp:
 # 更多关于访问速度优化，请查看：https://blog.sky03.cn/posts/42790.html
 # 注：jsdelivr可以自动帮你生成.min版的js和css，所以你在上面设置js及css路径中可以直接写.min.xxx
 jsDelivr:
-  url: # https://cdn.jsdelivr.net/gh/skyls03/skyls03.github.io
-  
+  url:
 # 网站背景图
 background:
   enable: false

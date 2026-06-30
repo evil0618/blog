@@ -1,36 +1,23 @@
-<% if (theme.verifyPassword.enable) { %>
-<script src="<%- theme.jsDelivr.url %><%- url_for(theme.libs.js.crypto) %>"></script>
+<% if (theme.verifyPassword && theme.verifyPassword.enable) { %>
+<script src="<%- url_for(theme.libs.js.crypto) %>"></script>
 <script>
     (function() {
         let pwd = '<%- page.password %>';
         if (pwd && pwd.length > 0) {
             if (pwd !== CryptoJS.SHA256(prompt('<%- theme.verifyPassword.promptMessage %>')).toString(CryptoJS.enc.Hex)) {
                 alert('<%- theme.verifyPassword.errorMessage %>');
-                location.href = '<%- url_for("/")  %>';
+                location.href = '<%- url_for("/") %>';
             }
         }
     })();
 </script>
 <% } %>
 
-<%- partial('_partial/post-cover') %>
-
-<%
-    var isTocEnable = theme.toc.enable && String(page.toc) !== 'false';
-    var containerClass = isTocEnable ? 'post-container' : 'container';
-%>
-
-<main class="<%- containerClass %> content">
-
-    <% if (isTocEnable) { %>
-    <%- partial('_partial/post-detail-toc.ejs') %>
-    <% } else { %>
+<main>
     <%- partial('_partial/post-detail.ejs') %>
-    <% } %>
-
 </main>
 
-<% if (theme.mathjax.enable && page.mathjax) { %>
+<% if (theme.mathjax && theme.mathjax.enable && page.mathjax && typeof theme.mathjax.cdn !== 'undefined') { %>
 <script src="<%- theme.mathjax.cdn %>"></script>
 <script>
     MathJax.Hub.Config({

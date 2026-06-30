@@ -1,22 +1,168 @@
-<!-- 代码块功能依赖 -->
-<script type="text/javascript" src="<%- theme.jsDelivr.url %><%- url_for(theme.libs.js.codeblock) %>"></script>
+<!-- 代码块增强：终端风格 -->
+<style>
+.post-content figure.highlight,
+.post-content pre {
+  background: hsl(var(--terminal-bg));
+  border: 1px solid hsl(var(--terminal-border));
+  border-radius: var(--radius);
+  margin: 1.5rem 0;
+  overflow: hidden;
+  position: relative;
+}
+.post-content figure.highlight pre,
+.post-content pre { margin: 0; background: transparent; border: 0; }
+.post-content figure.highlight table { width: 100%; border-collapse: collapse; }
+.post-content figure.highlight td { border: 0; padding: 0; vertical-align: top; }
+.post-content figure.highlight .gutter {
+  background: rgba(255,255,255,0.03);
+  padding: 0.9rem 0.75rem;
+  color: #71717a;
+  text-align: right;
+  user-select: none;
+  white-space: nowrap;
+}
+.post-content figure.highlight .gutter pre { color: #71717a; }
+.post-content figure.highlight .code { padding: 0.9rem 0.9rem 0.9rem 0; width: 100%; }
+.post-content figure.highlight .code pre { padding-left: 0.9rem; }
+.post-content pre code,
+.post-content figure.highlight code {
+  color: #fafafa;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.post-content pre { padding: 0.9rem; }
+.code-block-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  border-bottom: 1px solid hsl(var(--terminal-border));
+}
+.traffic-light { width: 0.75rem; height: 0.75rem; border-radius: 9999px; display: inline-block; }
+.traffic-light.red { background: #ff5f56; }
+.traffic-light.yellow { background: #ffbd2e; }
+.traffic-light.green { background: #27c93f; }
+.code-lang-label {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: #a1a1aa;
+  font-family: ui-monospace, monospace;
+  text-transform: lowercase;
+}
+.code-copy-btn {
+  margin-left: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.375rem;
+  color: #a1a1aa;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.code-copy-btn:hover { color: #fafafa; background: rgba(255,255,255,0.08); }
+</style>
 
-<% if (config.prismjs && config.prismjs.enable) { %>
-  <!-- 是否加载使用自带的 prismjs. -->
-  <script type="text/javascript" src="<%- theme.jsDelivr.url %><%- url_for(theme.libs.js.prism) %>"></script>
-<% } %>
+<script>
+(function () {
+  function announce(msg) {
+    var live = document.getElementById('code-live-region');
+    if (!live) {
+      live = document.createElement('div');
+      live.id = 'code-live-region';
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('class', 'sr-only');
+      document.body.appendChild(live);
+    }
+    live.textContent = msg;
+  }
 
-<!-- 代码语言 -->
-<% if (theme.code.lang) { %>
-<script type="text/javascript" src="<%- theme.jsDelivr.url %><%- url_for(theme.libs.js.codelang) %>"></script>
-<% } %>
+  function getLang(block) {
+    if (block.tagName === 'FIGURE') {
+      var m = block.className.match(/highlight\s+(\S+)/);
+      if (m && m[1] && m[1] !== 'plain') return m[1];
+    } else {
+      var code = block.querySelector('code');
+      if (code) {
+        var mm = code.className.match(/language-(\S+)/);
+        if (mm) return mm[1];
+      }
+    }
+    return '';
+  }
 
-<!-- 代码块复制 -->
-<% if (theme.code.copy) { %>
-<script type="text/javascript" src="<%- theme.jsDelivr.url %><%- url_for(theme.libs.js.codecopy) %>"></script>
-<% } %>
+  function getCodeText(block) {
+    if (block.tagName === 'FIGURE') {
+      var c = block.querySelector('td.code code') || block.querySelector('code');
+      return c ? c.innerText : '';
+    }
+    var cc = block.querySelector('code');
+    return cc ? cc.innerText : block.innerText;
+  }
 
-<!-- 代码块收缩 -->
-<% if (theme.code.shrink) { %>
-<script type="text/javascript" src="<%- theme.jsDelivr.url %><%- url_for(theme.libs.js.codeshrink) %>"></script>
-<% } %>
+  function enhance(block) {
+    if (block.dataset.enhanced) return;
+    block.dataset.enhanced = '1';
+    var header = document.createElement('div');
+    header.className = 'code-block-header';
+    header.innerHTML =
+      '<span class="traffic-light red" aria-hidden="true"></span>' +
+      '<span class="traffic-light yellow" aria-hidden="true"></span>' +
+      '<span class="traffic-light green" aria-hidden="true"></span>' +
+      '<span class="code-lang-label"></span>';
+    header.querySelector('.code-lang-label').textContent = getLang(block);
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'code-copy-btn';
+    btn.setAttribute('aria-label', '复制代码');
+    btn.innerHTML = '<i class="fas fa-copy" aria-hidden="true"></i>';
+    btn.addEventListener('click', function () {
+      var text = getCodeText(block);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, done);
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+        done();
+      }
+      function done() {
+        announce('代码已复制');
+        btn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i>';
+        setTimeout(function () { btn.innerHTML = '<i class="fas fa-copy" aria-hidden="true"></i>'; }, 1500);
+      }
+    });
+    header.appendChild(btn);
+
+    if (block.tagName === 'FIGURE') {
+      block.insertBefore(header, block.firstChild);
+    } else {
+      // wrap header + pre: insert header before the pre in its parent.
+      var parent = block.parentNode;
+      if (parent) parent.insertBefore(header, block);
+    }
+  }
+
+  function init() {
+    var figures = document.querySelectorAll('.post-content figure.highlight');
+    figures.forEach(enhance);
+    var pres = document.querySelectorAll('.post-content pre');
+    pres.forEach(function (p) {
+      if (p.closest('figure.highlight')) return; // inner pre of figure, skip
+      enhance(p);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>

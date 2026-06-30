@@ -1,89 +1,35 @@
-<%- partial('_partial/bg-cover') %>
+<main class="mx-auto max-w-3xl px-4 py-12">
+    <header class="mb-8 border-b border-border pb-6">
+        <h1 class="text-3xl font-semibold tracking-tight text-foreground"><%= __('category') %>: <%= page.category %></h1>
+        <p class="mt-2 text-sm text-muted-foreground"><%= page.posts.length %> <%= __('posts') %></p>
+    </header>
 
-<main class="content">
-
-    <%- partial('_widget/category-cloud') %>
-
-    <%
-    var hashCode = function (str) {
-        if (!str && str.length === 0) {
-            return 0;
-        }
-
-        var hash = 0;
-        for (var i = 0, len = str.length; i < len; i++) {
-            hash = ((hash << 5) - hash) + str.charCodeAt(i);
-            hash |= 0;
-        }
-        return hash;
-    };
-    %>
-
-    <article id="articles" class="container articles">
-        <div class="row tags-posts">
-            <% page.posts.sort('date').reverse().forEach(post => { %>
-            <div class="article tag-post col s12 m6 l4" data-aos="zoom-in">
-                <div class="card">
-                    <a href="<%- url_for(post.path) %>">
-                        <div class="card-image tag-image">
-                            <% if (post.img) { %>
-                            <img src="<%- url_for(post.img) %>" class="responsive-img" alt="<%= post.title %>">
-                            <% } else { %>
-                            <%
-                                var featureimg = theme.featureImages[Math.abs(hashCode(post.title) % theme.featureImages.length)];
-                            %>
-                            <img src="<%- theme.jsDelivr.url %><%- url_for(featureimg) %>" class="responsive-img" alt="<%= post.title %>">
-                            <% } %>
-                            <span class="card-title"><%= post.title %></span>
-                        </div>
-                    </a>
-                    <div class="card-content article-content">
-                        <div class="summary block-with-text">
-                            <% if (post.summary && post.summary.length > 0) { %>
-                                <%- post.summary %>
-                            <% } else { %>
-                                <%- strip_html(post.content).substring(0, 120) %>
-                            <% } %>
-                        </div>
-                        <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i><%= date(post.date, config.date_format) %>
-                            </span>
-                            <span class="publish-author">
-                                <% if (post.categories && post.categories.length > 0) { %>
-                                <i class="fas fa-bookmark fa-fw icon-category"></i>
-                                <% post.categories.forEach(category => { %>
-                                <a href="<%- url_for(category.path) %>" class="post-category">
-                                    <%- category.name %>
-                                </a>
-                                <% }); %>
-                                <% } else if (post.author && post.author.length > 0) { %>
-                                <i class="fas fa-user fa-fw"></i>
-                                <%- post.author %>
-                                <% } else { %>
-                                <i class="fas fa-user fa-fw"></i>
-                                <%- config.author %>
-                                <% } %>
-                            </span>
-                        </div>
-                    </div>
-
-                    <% if (post.tags && post.tags.length) { %>
-                    <div class="card-action article-tags">
-                        <% post.tags.forEach(tag => { %>
-                        <a href="<%- url_for(tag.path) %>">
-                            <span class="chip bg-color"><%= tag.name %></span>
-                        </a>
-                        <% }); %>
-                    </div>
-                    <% } %>
-                </div>
+    <div class="flex flex-col gap-6">
+        <% page.posts.sort('date').reverse().forEach(function(post) { %>
+        <article class="border border-border rounded-lg p-6 transition-shadow hover:shadow-sm">
+            <div class="flex items-baseline justify-between gap-4">
+                <h2 class="text-xl font-medium leading-snug">
+                    <a href="<%- url_for(post.path) %>" class="text-foreground hover:underline transition-colors"><%= post.title %></a>
+                </h2>
+                <time class="shrink-0 text-sm text-muted-foreground"><%= date(post.date, 'YYYY-MM-DD') %></time>
             </div>
-            <% }); %>
-        </div>
-    </article>
-</main>
+            <p class="mt-2 text-muted-foreground leading-relaxed line-clamp-2">
+                <% if (post.summary && post.summary.length > 0) { %><%- strip_html(post.summary).substring(0, 140) %><% } else { %><%- strip_html(post.content).substring(0, 140) %><% } %>
+            </p>
+            <% if (post.tags && post.tags.length) { %>
+            <div class="mt-4 flex flex-wrap gap-2">
+                <% post.tags.forEach(function(tag) { %>
+                <a href="<%- url_for(tag.path) %>" class="text-xs text-muted-foreground hover:text-foreground transition-colors">#<%= tag.name %></a>
+                <% }); %>
+            </div>
+            <% } %>
+        </article>
+        <% }); %>
+    </div>
 
-<% if (page.total > 1) { %>
-<%- partial('_partial/paging') %>
-<% } %>
+    <% if (page.total > 1) { %>
+    <div class="mt-10">
+        <%- partial('_partial/paging') %>
+    </div>
+    <% } %>
+</main>

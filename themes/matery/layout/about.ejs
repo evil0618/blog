@@ -1,59 +1,12 @@
-<style type="text/css">
-    /* don't remove. */
-    .about-cover {
-        height: 75vh;
-    }
-</style>
-
-<%- partial('_partial/bg-cover') %>
-
-<main class="content">
-
-    <div id="aboutme" class="container about-container">
-        <div class="card">
-            <div class="card-content">
-                <div class="row">
-                    <div class="post-statis col l4 hide-on-med-and-down" data-aos="zoom-in-right">
-                        <%- partial('_partial/post-statis') %>
-                    </div>
-                    <div class="col s12 m12 l4">
-                        <div class="profile center-align">
-                            <div class="avatar">
-                                <img src="<%- theme.jsDelivr.url %><%- url_for(theme.profile.avatar) %>" alt="<%- config.author %>"
-                                     class="circle responsive-img avatar-img">
-                            </div>
-                            <div class="author">
-                                <div class="post-statis hide-on-large-only" data-aos="zoom-in-right">
-                                    <%- partial('_partial/post-statis') %>
-                                </div>
-                                <div class="title"><%- config.author %></div>
-                                <div class="career"><%- theme.profile.career %></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="introduction center-align" data-aos="fade-up"><%= theme.profile.introduction %></div>
-
-                <%- partial('_widget/post-charts') %>
-
-                <% if (theme.myProjects && theme.myProjects.enable) { %>
-                <%- partial('_widget/my-projects') %>
-                <% } %>
-
-                <% if (theme.mySkills && theme.mySkills.enable) { %>
-                <%- partial('_widget/my-skills') %>
-                <% } %>
-
-                <% if (theme.myGallery && theme.myGallery.enable) { %>
-                <%- partial('_widget/my-gallery') %>
-                <% } %>
-                
-                <% if (theme.artitalk && theme.artitalk.enable) { %>
-                <%- partial('_widget/artitalk') %>
-                <% } %>
-                
-            </div>
-        </div>
-    </div>
+<main class="mx-auto max-w-3xl px-4 py-12">
+    <header class="mb-8 border-b border-border pb-6 text-center">
+        <img src="<%- url_for(theme.profile.avatar) %>" alt="<%- config.author %>" class="mx-auto h-24 w-24 rounded-full border border-border" width="96" height="96">
+        <h1 class="mt-4 text-3xl font-semibold tracking-tight text-foreground"><%- config.author %></h1>
+        <% if (theme.profile.career) { %><p class="mt-1 text-sm text-muted-foreground"><%- theme.profile.career %></p><% } %>
+        <% if (theme.profile.introduction) { %><p class="mt-4 text-foreground"><%- theme.profile.introduction %></p><% } %>
+    </header>
+    <% if (theme.myProjects && theme.myProjects.enable) { %><%- partial('_widget/my-projects') %><% } %>
+    <% if (theme.mySkills && theme.mySkills.enable) { %><%- partial('_widget/my-skills') %><% } %>
+    <% if (theme.myGallery && theme.myGallery.enable) { %><%- partial('_widget/my-gallery') %><% } %>
+    <% if (page.content && page.content.length > 0) { %><div class="post-content mt-8"><%- page.content %></div><% } %>
 </main>
