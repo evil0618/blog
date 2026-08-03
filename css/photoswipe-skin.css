@@ -1,0 +1,152 @@
+/* ============================================================
+   shadcn-hexo 主题 · PhotoSwipe 灯箱控件皮肤
+   ------------------------------------------------------------
+   在 photoswipe.css 之后加载，用于覆盖默认控件：
+   - 把 50×60 / 75×100 的矩形大按钮改成圆形玻璃小按钮
+   - 工具栏重排：计数器靠左，操作按钮靠右
+   - PC 端显示精致箭头；触屏端交由 PhotoSwipe 的 .pswp--touch 隐藏
+   两种样式（经典 / 液态玻璃）通用，液态模式在 liquid.css 里再增强。
+   ============================================================ */
+
+.pswp {
+  --pswp-icon-color: #f5f6f8;
+  --pswp-icon-color-secondary: #cfd3da;
+  --pswp-icon-stroke-color: #f5f6f8;
+  --pswp-icon-stroke-width: 1.6;
+}
+
+/* ---- 顶部工具栏 ---- */
+.pswp .pswp__top-bar {
+  height: auto;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* 计数器：靠左的胶囊 */
+.pswp .pswp__counter {
+  margin-right: auto;
+  margin-top: 0;
+  margin-inline-start: 4px;
+  height: 34px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--pswp-icon-color);
+  text-shadow: none;
+  opacity: 1;
+  border-radius: 9999px;
+  background: rgba(24, 26, 32, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+}
+
+/* ---- 通用圆形玻璃按钮 ---- */
+.pswp .pswp__button {
+  width: 42px;
+  height: 42px;
+  border-radius: 9999px;
+  background: rgba(24, 26, 32, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  opacity: 1;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.22s ease;
+}
+.pswp .pswp__button:hover,
+.pswp .pswp__button:focus {
+  background: rgba(40, 43, 52, 0.6);
+  transform: translateY(-1px) scale(1.04);
+}
+.pswp .pswp__button:active {
+  transform: scale(0.92);
+}
+
+/* 图标在圆形按钮里居中 */
+.pswp .pswp__button .pswp__icn {
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  width: 26px;
+  height: 26px;
+  transform: translate(-50%, -50%);
+  border-radius: 0;
+}
+
+/* 关闭按钮稍大，突出 */
+.pswp .pswp__button--close {
+  margin-right: 0;
+  width: 44px;
+  height: 44px;
+}
+
+/* ---- 左右箭头：圆形、缩小、垂直居中 ---- */
+.pswp .pswp__button--arrow {
+  width: 52px;
+  height: 52px;
+  top: 50%;
+  margin-top: -26px;
+  border-radius: 9999px;
+  background: rgba(24, 26, 32, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+}
+.pswp .pswp__button--arrow--prev { left: 16px; }
+.pswp .pswp__button--arrow--next { right: 16px; }
+
+.pswp .pswp__button--arrow .pswp__icn {
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  width: 30px;
+  height: 30px;
+  transform: translate(-50%, -50%);
+  border-radius: 0;
+  background: none;
+}
+/* 下一张箭头图标水平翻转后仍需保持居中 */
+.pswp .pswp__button--arrow--next .pswp__icn {
+  left: 50%;
+  right: auto;
+  transform: translate(-50%, -50%) scale(-1, 1);
+}
+
+/* 只有一张图时 PhotoSwipe 会加 .pswp--one-slide，隐藏计数器与箭头（默认已有） */
+
+/* ---- 触屏设备：隐藏箭头（滑动切换），加大按钮命中区域 ---- */
+.pswp--touch .pswp__button--arrow {
+  display: none;
+}
+.pswp--touch .pswp__button {
+  width: 46px;
+  height: 46px;
+}
+.pswp--touch .pswp__button--close {
+  width: 48px;
+  height: 48px;
+}
+
+/* 小屏上进一步收紧工具栏 */
+@media (max-width: 640px) {
+  .pswp .pswp__top-bar { padding: 10px 12px; gap: 6px; }
+  .pswp .pswp__counter { height: 30px; padding: 0 11px; font-size: 12px; }
+}
+
+/* 减少透明度偏好时退化为实底 */
+@media (prefers-reduced-transparency: reduce) {
+  .pswp .pswp__button,
+  .pswp .pswp__counter,
+  .pswp .pswp__button--arrow {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(24, 26, 32, 0.85);
+  }
+}

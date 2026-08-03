@@ -1,0 +1,382 @@
+/* ============================================================
+   shadcn-hexo 主题 · 搜索弹窗样式（Spotlight 命令面板风格）
+   ------------------------------------------------------------
+   经典 shadcn 模式：实心面板、细分隔线、accent 高亮选中态
+   液态玻璃模式：在 liquid.css 玻璃材质基础上叠加细节调校
+   结构：#search-panel = .search-head + #search-body + .search-foot
+   ============================================================ */
+
+/* ---------- 遮罩 ---------- */
+
+#search-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.48);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  animation: search-overlay-in 0.22s ease;
+}
+.dark #search-overlay {
+  background: rgba(2, 6, 16, 0.62);
+}
+
+@keyframes search-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ---------- 面板 ----------
+   用 left/right:0 + margin:auto 居中，不用 translateX(-50%)，
+   避免与入场动画的 transform 互相打架。 */
+
+#search-panel {
+  position: fixed;
+  top: clamp(3rem, 12vh, 9rem);
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  z-index: 1;
+  width: min(38rem, calc(100vw - 2rem));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid hsl(var(--border));
+  background-color: hsl(var(--background));
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 24px 70px rgba(15, 23, 42, 0.28),
+    0 4px 16px rgba(15, 23, 42, 0.12);
+  animation: search-panel-in 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes search-panel-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---------- 头部：图标 + 输入框 + 关闭 ---------- */
+
+.search-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 14px;
+  border-bottom: 1px solid hsl(var(--border) / 0.72);
+}
+
+.search-head-icon {
+  flex-shrink: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+#search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.95rem;
+  color: hsl(var(--foreground));
+  padding: 4px 0;
+}
+#search-input::placeholder {
+  color: hsl(var(--muted-foreground) / 0.72);
+}
+
+#search-close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 9999px;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: background-color 0.16s ease, color 0.16s ease;
+}
+#search-close:hover {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+/* ---------- 结果滚动区 ---------- */
+
+#search-body {
+  max-height: min(54vh, 27rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px;
+}
+
+/* 细滚动条（WebKit） */
+#search-body::-webkit-scrollbar {
+  width: 8px;
+}
+#search-body::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: hsl(var(--muted-foreground) / 0.3);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+#search-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---------- 结果条目 ---------- */
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.search-result-item + .search-result-item {
+  margin-top: 4px;
+}
+.search-result-item:hover {
+  background: hsl(var(--accent));
+}
+.search-result-item.is-active {
+  background: hsl(var(--accent));
+  border-color: hsl(var(--border));
+}
+
+.sri-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.sri-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: hsl(var(--foreground));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sri-snippet {
+  margin-top: 3px;
+  font-size: 0.79rem;
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.sri-chip {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  line-height: 1;
+  padding: 5px 9px;
+  border-radius: 9999px;
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground) / 0.82);
+  white-space: nowrap;
+}
+
+/* 关键词高亮 */
+#search-panel mark {
+  background: rgba(253, 224, 71, 0.55);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 1px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.dark #search-panel mark {
+  background: rgba(250, 204, 21, 0.3);
+}
+
+/* ---------- 状态页（引导 / 加载 / 无结果 / 出错） ---------- */
+
+.search-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 42px 18px;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+}
+/* display:flex 会压过 hidden 属性的 UA 默认 display:none，
+   这里用更高特异性显式保证隐藏生效 */
+.search-state[hidden] {
+  display: none;
+}
+.search-state svg {
+  opacity: 0.4;
+  margin-bottom: 4px;
+}
+.search-state-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: hsl(var(--foreground) / 0.82);
+}
+.search-state-sub {
+  font-size: 0.78rem;
+  opacity: 0.78;
+}
+
+.search-spinner {
+  width: 26px;
+  height: 26px;
+  margin-bottom: 4px;
+  border-radius: 50%;
+  border: 2.5px solid hsl(var(--border));
+  border-top-color: hsl(var(--foreground) / 0.75);
+  animation: spin 0.8s linear infinite;
+}
+
+/* ---------- 底部：计数 + 快捷键提示 ---------- */
+
+.search-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 14px;
+  border-top: 1px solid hsl(var(--border) / 0.72);
+  font-size: 0.72rem;
+  color: hsl(var(--muted-foreground));
+  min-height: 34px;
+}
+.search-count:empty {
+  display: none;
+}
+.search-foot-keys {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+#search-panel kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 5px;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  font-size: 0.66rem;
+  font-family: inherit;
+  box-shadow: 0 1px 0 hsl(var(--border));
+}
+
+/* 移动端：快捷键提示没意义，隐藏 */
+@media (max-width: 640px) {
+  #search-panel {
+    top: 6vh;
+    width: calc(100vw - 1.25rem);
+    border-radius: 16px;
+  }
+  .search-foot-keys {
+    display: none;
+  }
+  .search-count {
+    margin-left: auto;
+  }
+  #search-body {
+    max-height: min(62vh, 27rem);
+  }
+}
+
+/* ============================================================
+   液态玻璃模式调校
+   （面板玻璃材质 / 圆角 / 入场动画由 liquid.css 负责，
+     这里只处理分隔线、选中态、高亮色等细节）
+   ============================================================ */
+
+html.liquid #search-overlay {
+  background: rgba(10, 14, 28, 0.34);
+  -webkit-backdrop-filter: blur(7px) saturate(150%);
+  backdrop-filter: blur(7px) saturate(150%);
+}
+html.liquid.dark #search-overlay {
+  background: rgba(4, 6, 14, 0.44);
+}
+
+html.liquid .search-head {
+  border-bottom-color: rgba(255, 255, 255, 0.38);
+}
+html.liquid .search-foot {
+  border-top-color: rgba(255, 255, 255, 0.32);
+}
+html.liquid.dark .search-head {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+html.liquid.dark .search-foot {
+  border-top-color: rgba(255, 255, 255, 0.09);
+}
+
+/* 玻璃头部的输入框：透明无底，玻璃凹槽由 liquid.css 的
+   #search-input 规则提供（胶囊形 + 内凹阴影） */
+html.liquid #search-input {
+  padding: 6px 14px;
+}
+
+/* 结果条目选中态：更强的玻璃高光
+   （需同时覆盖 background-image，否则 liquid.css 基础渐变会盖住提亮） */
+html.liquid .search-result-item:hover,
+html.liquid .search-result-item.is-active {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.5));
+  background-color: rgba(255, 255, 255, 0.56);
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.85),
+    0 6px 18px rgba(31, 41, 66, 0.12);
+}
+html.liquid.dark .search-result-item:hover,
+html.liquid.dark .search-result-item.is-active {
+  background-image: none;
+  background-color: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.18);
+}
+
+/* 分类小徽章在玻璃下更透亮 */
+html.liquid .sri-chip {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  color: rgba(24, 32, 52, 0.8);
+}
+html.liquid.dark .sri-chip {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(230, 236, 248, 0.82);
+}
+
+/* 玻璃下的关闭按钮 */
+html.liquid #search-close:hover {
+  background: rgba(255, 255, 255, 0.55);
+  color: rgba(15, 20, 35, 0.95);
+}
+html.liquid.dark #search-close:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(245, 248, 255, 0.95);
+}
+
+/* 玻璃模式高亮色稍微收敛，避免过曝 */
+html.liquid #search-panel mark {
+  background: rgba(253, 224, 71, 0.48);
+}
+html.liquid.dark #search-panel mark {
+  background: rgba(250, 204, 21, 0.26);
+}

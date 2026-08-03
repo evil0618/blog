@@ -1,0 +1,646 @@
+/* ============================================================
+   shadcn-hexo 主题 · Liquid Glass（液态玻璃）样式
+   ------------------------------------------------------------
+   对标 iOS 26「Liquid Glass」设计语言。
+   三层叠加出玻璃感：
+     1) 环境光  —— 固定在最底层的彩色渐变（玻璃要"折射"的对象）
+     2) 折射层  —— liquid-glass.js 在 Chromium 下挂 SVG feDisplacementMap，
+                   真正弯曲玻璃背后的画面；其它浏览器自动降级为纯模糊
+     3) 材质层  —— 本文件：半透明填充 + 模糊饱和 + 镜面高光 + 边缘描光
+   通过给 <html> 加 .liquid 类启用，可与 .dark 自由组合。
+   ============================================================ */
+
+/* ---------- 0. 动画关键帧 ---------- */
+
+/* 环境光缓慢漂移，让折射面有"活"的背景可折 */
+@keyframes lg-ambient-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(0, -2.5%, 0) scale(1.05); }
+  100% { transform: translate3d(0, 1.5%, 0) scale(1.02); }
+}
+
+/* 玻璃浮现 */
+@keyframes lg-surface-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---------- 1. 全局基底：透明化 + 彩色环境光 ---------- */
+
+/* 让页面基底透明，露出环境光渐变 */
+html.liquid body {
+  background-color: transparent;
+}
+
+/* 环境光渐变层：固定在视口最底层，供玻璃折射。比经典模式更"艳"，
+   这样折射出来的彩色才明显。 */
+html.liquid body::before {
+  content: "";
+  position: fixed;
+  inset: -10%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(40rem 40rem at 10% -8%, rgba(96, 165, 250, 0.62), transparent 62%),
+    radial-gradient(36rem 36rem at 94% 2%, rgba(168, 85, 247, 0.55), transparent 64%),
+    radial-gradient(42rem 42rem at 106% 44%, rgba(244, 114, 182, 0.46), transparent 60%),
+    radial-gradient(48rem 48rem at -4% 76%, rgba(45, 212, 191, 0.46), transparent 62%),
+    radial-gradient(44rem 44rem at 54% 118%, rgba(251, 191, 36, 0.44), transparent 62%),
+    radial-gradient(30rem 30rem at 50% 40%, rgba(56, 189, 248, 0.22), transparent 70%),
+    linear-gradient(180deg, #eaf3ff 0%, #f4f0ff 44%, #fff1ec 100%);
+  animation: lg-ambient-drift 26s ease-in-out infinite alternate;
+  /* 环境光随滚动缓慢上移（liquid-glass.js 更新 --lg-scroll），
+     折射出的彩色因此"流动"起来。独立 translate 属性，与上面的动画不冲突 */
+  translate: 0 calc(var(--lg-scroll, 0) * -0.06px);
+  will-change: transform, translate;
+}
+
+/* 暗色环境光：更沉、更冷，但保留彩色供折射 */
+html.liquid.dark body::before {
+  background:
+    radial-gradient(40rem 40rem at 10% -8%, rgba(37, 99, 235, 0.5), transparent 62%),
+    radial-gradient(36rem 36rem at 94% 2%, rgba(147, 51, 234, 0.44), transparent 64%),
+    radial-gradient(42rem 42rem at 106% 44%, rgba(219, 39, 119, 0.3), transparent 60%),
+    radial-gradient(48rem 48rem at -4% 76%, rgba(13, 148, 136, 0.3), transparent 62%),
+    radial-gradient(44rem 44rem at 54% 118%, rgba(217, 119, 6, 0.22), transparent 62%),
+    linear-gradient(180deg, #070b18 0%, #0c0a1c 44%, #140a12 100%);
+}
+
+/* ---------- 2. 玻璃材质基类（材质层核心） ---------- */
+
+/* 所有参与玻璃化的表面共用这套"材质"。
+   折射（url(#lg-refract-N)）由 JS 以内联 backdrop-filter 覆盖；
+   这里给出的是与折射叠加的填充、高光与描边。 */
+html.liquid .lg-glass,
+html.liquid header.sticky,
+html.liquid main article,
+html.liquid .article-page,
+html.liquid #search-dialog > div:last-child,
+html.liquid #settings-dialog > div:last-child,
+html.liquid #mobile-menu,
+html.liquid .highlight-figure,
+html.liquid .lg-surface {
+  /* iOS 26 的关键：白色填充很薄，中心近乎透明，靠边缘折射 + 高光出镜 */
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.34),
+    rgba(255, 255, 255, 0.12) 26%,
+    rgba(255, 255, 255, 0.09)
+  );
+  background-color: rgba(255, 255, 255, 0.13);
+  -webkit-backdrop-filter: blur(6px) saturate(185%) brightness(1.07);
+  backdrop-filter: blur(6px) saturate(185%) brightness(1.07);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.9),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.22),
+    inset 1px 0 1px rgba(255, 255, 255, 0.3),
+    0 12px 40px rgba(31, 41, 66, 0.14);
+}
+
+/* 暗色玻璃：深一点的基底 + 更细的高光 */
+html.liquid.dark .lg-glass,
+html.liquid.dark header.sticky,
+html.liquid.dark main article,
+html.liquid.dark .article-page,
+html.liquid.dark #search-dialog > div:last-child,
+html.liquid.dark #settings-dialog > div:last-child,
+html.liquid.dark #mobile-menu,
+html.liquid.dark .highlight-figure,
+html.liquid.dark .lg-surface {
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.13),
+    rgba(255, 255, 255, 0.05) 30%,
+    rgba(255, 255, 255, 0.04)
+  );
+  background-color: rgba(17, 20, 32, 0.26);
+  -webkit-backdrop-filter: blur(6px) saturate(180%) brightness(1.05);
+  backdrop-filter: blur(6px) saturate(180%) brightness(1.05);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.26),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.22),
+    0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- 3. 顶部导航：浮动玻璃胶囊（iOS 26 标志性悬浮条） ---------- */
+
+html.liquid header.sticky {
+  top: 12px;
+  width: auto;               /* 抵消 w-full，用左右 margin 悬浮 */
+  margin: 0 16px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  overflow: visible;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.85),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.2),
+    0 10px 36px rgba(31, 41, 66, 0.2);
+}
+html.liquid.dark header.sticky {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    0 10px 36px rgba(0, 0, 0, 0.55);
+}
+
+/* 导航/工具按钮：圆润胶囊、悬停浮起、按下回弹 */
+html.liquid header nav a,
+html.liquid header button {
+  border-radius: 9999px;
+  transition:
+    background-color 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.28s ease;
+}
+html.liquid header nav a:hover,
+html.liquid header button:hover {
+  background: rgba(255, 255, 255, 0.6);
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 4px 14px rgba(31, 41, 66, 0.12);
+}
+html.liquid header nav a:active,
+html.liquid header button:active {
+  transform: translateY(0) scale(0.94);
+}
+html.liquid.dark header nav a:hover,
+html.liquid.dark header button:hover {
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- 4. 卡片（首页/列表文章卡片） ---------- */
+
+html.liquid main article {
+  border-radius: 28px;
+  overflow: hidden;
+  animation: lg-surface-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  transition:
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.4s ease;
+}
+/* 逐张错峰浮现 */
+html.liquid main article:nth-child(2) { animation-delay: 0.06s; }
+html.liquid main article:nth-child(3) { animation-delay: 0.12s; }
+html.liquid main article:nth-child(4) { animation-delay: 0.18s; }
+html.liquid main article:nth-child(5) { animation-delay: 0.24s; }
+
+html.liquid main article:hover {
+  transform: translateY(-6px) scale(1.012);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.85),
+    0 24px 60px rgba(31, 41, 66, 0.24);
+}
+html.liquid.dark main article:hover {
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    0 24px 60px rgba(0, 0, 0, 0.65);
+}
+
+/* 卡片封面图圆角与内容留白 */
+html.liquid main article img {
+  border-radius: 18px;
+}
+
+/* ---------- 5. 按钮 / 徽章 / 输入框 / 次级表面 ---------- */
+
+html.liquid .btn,
+html.liquid .btn-outline,
+html.liquid .btn-ghost,
+html.liquid [class*="border-input"][class*="bg-background"] {
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.35));
+  background-color: rgba(255, 255, 255, 0.3);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.8),
+    0 3px 12px rgba(31, 41, 66, 0.12);
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.28s ease,
+    box-shadow 0.28s ease;
+}
+html.liquid .btn:hover,
+html.liquid .btn-outline:hover,
+html.liquid .btn-ghost:hover,
+html.liquid [class*="border-input"][class*="bg-background"]:hover {
+  transform: translateY(-1px);
+  background-color: rgba(255, 255, 255, 0.5);
+}
+html.liquid .btn:active,
+html.liquid .btn-outline:active,
+html.liquid .btn-ghost:active,
+html.liquid [class*="border-input"][class*="bg-background"]:active {
+  transform: scale(0.95);
+}
+html.liquid.dark .btn,
+html.liquid.dark .btn-outline,
+html.liquid.dark .btn-ghost,
+html.liquid.dark [class*="border-input"][class*="bg-background"] {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+  background-color: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.16),
+    0 3px 12px rgba(0, 0, 0, 0.4);
+}
+html.liquid.dark .btn:hover,
+html.liquid.dark .btn-outline:hover,
+html.liquid.dark .btn-ghost:hover,
+html.liquid.dark [class*="border-input"][class*="bg-background"]:hover {
+  background-color: rgba(255, 255, 255, 0.14);
+}
+
+/* bg-card 表面玻璃化（分类卡片、设置内嵌框等） */
+html.liquid .bg-card,
+html.liquid [class*="bg-card"] {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3));
+  background-color: rgba(255, 255, 255, 0.25);
+  -webkit-backdrop-filter: blur(22px) saturate(190%);
+  backdrop-filter: blur(22px) saturate(190%);
+}
+html.liquid.dark .bg-card,
+html.liquid.dark [class*="bg-card"] {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.05));
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* 搜索结果条目玻璃化 */
+html.liquid .search-result-item {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.32));
+  background-color: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 18px;
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  backdrop-filter: blur(14px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+html.liquid.dark .search-result-item {
+  background-image: none;
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* 徽章：胶囊玻璃小标签 */
+html.liquid .badge,
+html.liquid a[class*="rounded-full"][class*="bg-secondary"],
+html.liquid span[class*="rounded-full"][class*="bg-secondary"],
+html.liquid a[class*="rounded-full"][class*="bg-accent"],
+html.liquid span[class*="rounded-full"][class*="bg-accent"] {
+  border-radius: 9999px;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.4));
+  background-color: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  backdrop-filter: blur(12px) saturate(180%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+html.liquid.dark .badge,
+html.liquid.dark a[class*="rounded-full"][class*="bg-secondary"],
+html.liquid.dark span[class*="rounded-full"][class*="bg-secondary"],
+html.liquid.dark a[class*="rounded-full"][class*="bg-accent"],
+html.liquid.dark span[class*="rounded-full"][class*="bg-accent"] {
+  background-image: none;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.14);
+}
+
+/* 输入框：玻璃凹槽 */
+html.liquid .input,
+html.liquid #search-input {
+  border-radius: 9999px;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.65));
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    inset 0 2px 8px rgba(31, 41, 66, 0.1),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.6);
+}
+html.liquid.dark .input,
+html.liquid.dark #search-input {
+  background-image: none;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- 6. 弹窗（搜索 / 设置） ---------- */
+
+html.liquid #search-dialog > div:last-child,
+html.liquid #settings-dialog > div:last-child {
+  border-radius: 30px;
+  overflow: hidden;
+  animation: lg-surface-in 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- 7. 侧滑菜单 ---------- */
+
+html.liquid #mobile-menu {
+  border-radius: 30px 0 0 30px;
+  border-right: none;
+}
+
+/* ---------- 8. 代码块（玻璃面板） ---------- */
+
+html.liquid .highlight-figure {
+  border-radius: 22px;
+  overflow: hidden;
+}
+html.liquid .highlight-figure .highlight-header {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3));
+  background-color: rgba(255, 255, 255, 0.24);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+}
+html.liquid .highlight-figure .highlight-lang {
+  color: rgba(30, 40, 60, 0.72);
+}
+html.liquid .highlight-figure .highlight-copy {
+  color: rgba(30, 40, 60, 0.72);
+  border-radius: 9999px;
+}
+html.liquid .highlight-figure .highlight-copy:hover {
+  background: rgba(255, 255, 255, 0.55);
+  color: rgba(15, 20, 35, 0.95);
+}
+html.liquid.dark .highlight-figure .highlight-header {
+  background-image: none;
+  background-color: rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+html.liquid.dark .highlight-figure .highlight-lang,
+html.liquid.dark .highlight-figure .highlight-copy {
+  color: rgba(235, 240, 250, 0.72);
+}
+html.liquid.dark .highlight-figure .highlight-copy:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(245, 248, 255, 0.95);
+}
+
+/* ---------- 9. 灯箱控件 ----------
+   PhotoSwipe 控件（按钮/箭头/工具栏/计数器）统一由
+   photoswipe-skin.css 负责（两种样式通用），此处不再覆盖。 */
+
+/* ---------- 10. 页脚 ---------- */
+
+html.liquid footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+html.liquid.dark footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- 11. 设置里的 iOS 风格开关 ---------- */
+
+html.liquid .ui-switch {
+  box-shadow:
+    inset 0 2px 6px rgba(31, 41, 66, 0.25),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.4);
+}
+html.liquid .ui-switch .ui-switch-thumb {
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9);
+}
+
+/* ---------- 12. 骨架屏柔光 ---------- */
+
+html.liquid .skeleton {
+  background: rgba(255, 255, 255, 0.5);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+html.liquid.dark .skeleton {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ---------- 13. 文章正文卡片 ---------- */
+
+html.liquid .article-page {
+  border-radius: 32px;
+  padding: 2rem;
+  animation: lg-surface-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+@media (min-width: 640px) {
+  html.liquid .article-page {
+    padding: 2.75rem;
+  }
+}
+
+/* 正文里的图片：圆角加大，玻璃描边 + 悬停轻抬 */
+html.liquid .article-content img {
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 28px rgba(31, 41, 66, 0.18);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+}
+html.liquid .article-content img:hover {
+  transform: scale(1.01);
+  box-shadow: 0 14px 40px rgba(31, 41, 66, 0.24);
+}
+
+/* 灯箱包裹后的图片保持可点 */
+html.liquid .article-content a.pswp-link {
+  display: block;
+}
+html.liquid .article-content a.pswp-link img {
+  cursor: zoom-in;
+}
+
+/* 引用块玻璃化 */
+html.liquid .article-content blockquote {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3));
+  background-color: rgba(255, 255, 255, 0.32);
+  border-left: 4px solid rgba(80, 130, 255, 0.85);
+  border-radius: 0 20px 20px 0;
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  backdrop-filter: blur(14px) saturate(180%);
+}
+html.liquid.dark .article-content blockquote {
+  background-image: none;
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* ---------- 14. 降低透明度偏好的降级 ---------- */
+
+@media (prefers-reduced-transparency: reduce) {
+  html.liquid .lg-glass,
+  html.liquid header.sticky,
+  html.liquid main article,
+  html.liquid .article-page {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-image: none;
+    background-color: rgba(255, 255, 255, 0.94);
+  }
+}
+
+/* ---------- 15. 液态玻璃快捷 Dock（仿 Apple 相册底栏） ---------- */
+
+/* 经典模式下完全隐藏；仅在液态玻璃模式显示 */
+.lg-dock {
+  display: none;
+}
+
+html.liquid .lg-dock {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  position: fixed;
+  left: 50%;
+  bottom: max(18px, env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 60;
+  padding: 7px;
+  border-radius: 9999px;
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.62),
+    rgba(255, 255, 255, 0.4) 40%,
+    rgba(255, 255, 255, 0.32)
+  );
+  background-color: rgba(255, 255, 255, 0.3);
+  -webkit-backdrop-filter: blur(26px) saturate(200%) brightness(1.06);
+  backdrop-filter: blur(26px) saturate(200%) brightness(1.06);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.85),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.2),
+    0 16px 44px rgba(31, 41, 66, 0.24),
+    0 2px 8px rgba(31, 41, 66, 0.1);
+  animation: lg-dock-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.15s backwards;
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.35s ease;
+}
+
+/* 灯箱打开时下沉隐藏（由 lightbox.js 切换该类） */
+html.liquid .lg-dock.dock-hidden {
+  transform: translate(-50%, 150%);
+  opacity: 0;
+  pointer-events: none;
+}
+html.liquid.dark .lg-dock {
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0.07) 40%,
+    rgba(255, 255, 255, 0.05)
+  );
+  background-color: rgba(17, 20, 32, 0.46);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.22),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.28),
+    0 16px 44px rgba(0, 0, 0, 0.55),
+    0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+@keyframes lg-dock-in {
+  from { opacity: 0; transform: translate(-50%, 28px) scale(0.9); }
+  to   { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+/* 水滴 blob：在按钮间流动形变的高亮"水滴"
+   left / width 由 dock.js 的两相动画驱动（先朝目标拉伸、再回弹收圆），
+   这里的过渡只作为兜底 */
+html.liquid .lg-dock .dock-blob {
+  position: absolute;
+  top: 7px;
+  bottom: 7px;
+  left: 7px;
+  width: 44px;
+  z-index: 0;
+  border-radius: 9999px;
+  pointer-events: none;
+  background-image:
+    radial-gradient(120% 90% at 30% 12%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 46%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.55));
+  -webkit-backdrop-filter: blur(8px) saturate(190%) brightness(1.12);
+  backdrop-filter: blur(8px) saturate(190%) brightness(1.12);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 1),
+    inset 0 -2px 4px rgba(160, 190, 255, 0.5),
+    inset -1px 0 2px rgba(255, 255, 255, 0.4),
+    0 5px 16px rgba(31, 41, 66, 0.2);
+  transition:
+    left 0.5s cubic-bezier(0.3, 1.4, 0.5, 1),
+    width 0.5s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+html.liquid.dark .lg-dock .dock-blob {
+  background-image:
+    radial-gradient(120% 90% at 30% 12%, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0) 46%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.1));
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.38),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.35),
+    0 5px 16px rgba(0, 0, 0, 0.45);
+}
+
+/* Dock 按钮 */
+html.liquid .lg-dock .dock-item {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 9999px;
+  background: transparent;
+  color: rgba(24, 32, 52, 0.78);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    color 0.2s ease;
+}
+html.liquid .lg-dock .dock-item:hover {
+  color: rgba(12, 18, 36, 0.98);
+  transform: translateY(-2px) scale(1.07);
+}
+html.liquid .lg-dock .dock-item:active {
+  transform: translateY(0) scale(0.88);
+}
+html.liquid.dark .lg-dock .dock-item {
+  color: rgba(230, 236, 248, 0.8);
+}
+html.liquid.dark .lg-dock .dock-item:hover {
+  color: rgba(248, 250, 255, 1);
+}
+
+/* 小屏：略缩小按钮与间距，并避让底部安全区 */
+@media (max-width: 640px) {
+  html.liquid .lg-dock {
+    gap: 0;
+    padding: 6px;
+    bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  }
+  html.liquid .lg-dock .dock-item {
+    width: 42px;
+    height: 42px;
+  }
+  html.liquid .lg-dock .dock-blob {
+    top: 6px;
+    bottom: 6px;
+    width: 42px;
+  }
+}
+
+/* 降低透明度偏好：Dock 降为近实心 */
+@media (prefers-reduced-transparency: reduce) {
+  html.liquid .lg-dock {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-image: none;
+    background-color: rgba(255, 255, 255, 0.94);
+  }
+  html.liquid.dark .lg-dock {
+    background-color: rgba(17, 20, 32, 0.94);
+  }
+}
